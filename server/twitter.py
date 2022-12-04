@@ -3,20 +3,20 @@ from dotenv import load_dotenv
 import os
 import json
 from transformers import pipeline
+from cleantext import clean
 
 class Tweet:
     def __init__(self):
         load_dotenv()
         self.BEARER_TOKEN = os.environ.get('BEARER_TOKEN')
         self.url = 'https://api.twitter.com/2/tweets/search/recent'
-        print(self.BEARER_TOKEN)
 
     def get_rating(self, player):
         data = self.get_tweets(player)
-        print(data)
         sentiment_pipeline = pipeline('sentiment-analysis')
-        sentiments = [sentiment_pipeline(tweet)[0] for tweet in data]
-        return sum([-1 if sent['label'] == 'NEGATIVE' else 1 for sent in sentiments]) / len(sentiments)
+        sentiments = [sentiment_pipeline(clean(tweet, no_emoji=True))[0] for tweet in data]
+        rating = sum([sent['score'] * (-1 if sent['label'] == 'NEGATIVE' else 1) for sent in sentiments]) / len(sentiments)
+        return rating / 2 + 5
 
     def bearer_oauth(self, r):
         r.headers["Authorization"] = f"Bearer {self.BEARER_TOKEN}"
@@ -35,9 +35,9 @@ class Tweet:
         return response.json()
 
     def get_tweets(self, player):
-        data = json.loads(json.dumps(tweet.connect_to_endpoint({'query': player + ' lang:en'})))
+        data = json.loads(json.dumps(tweet.connect_to_endpoint({'query': player + ' lang:en', 'tweet.fields': 'lang', 'max_results': 50})))
         return [i['text'] for i in data['data']]
 
 if __name__ == '__main__':
     tweet = Tweet()
-    print(tweet.get_rating('casper ruud'))
+    print(tweet.get_rating('novak djokovic'))
