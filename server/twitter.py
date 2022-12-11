@@ -14,7 +14,7 @@ class Tweet:
     def get_rating(self, player):
         data = self.get_tweets(player)
         sentiment_pipeline = pipeline('sentiment-analysis')
-        sentiments = [sentiment_pipeline(clean(tweet, no_emoji=True))[0] for tweet in data]
+        sentiments = [sentiment_pipeline(clean(tweet))[0] for tweet in data]
         rating = sum([sent['score'] * (-1 if sent['label'] == 'NEGATIVE' else 1) for sent in sentiments]) / len(sentiments)
         return rating / 2 + 5
 
