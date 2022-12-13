@@ -30,11 +30,7 @@ class Tweet:
         response = requests.request("GET", self.url, auth=self.bearer_oauth, params=query_params)
         print(response.status_code)
         if response.status_code != 200:
-            raise Exception(
-                "Request returned an error: {} {}".format(
-                    response.status_code, response.text
-                )
-            )
+            raise Exception(f'Request returned an error: {response.status_code} {response.text}')
         return response.json()
     
     def break_up_tweets(self, section_length, all_tweets):
@@ -80,23 +76,3 @@ if __name__ == '__main__':
 
     print(f'Execution time: {finish-start}')
     print(f'The sentiment of the first 100 tweets relating to {player}: {sum(results_dict.values())/len(results_dict.values())}')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
