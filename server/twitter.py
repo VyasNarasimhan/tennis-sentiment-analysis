@@ -6,6 +6,7 @@ from transformers import pipeline
 from cleantext import clean
 
 import time
+import multiprocessing as mp
 
 class Tweet:
     def __init__(self):
