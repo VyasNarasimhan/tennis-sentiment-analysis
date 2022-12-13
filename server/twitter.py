@@ -5,6 +5,8 @@ import json
 from transformers import pipeline
 from cleantext import clean
 
+import time
+
 class Tweet:
     def __init__(self):
         load_dotenv()
@@ -12,10 +14,13 @@ class Tweet:
         self.url = 'https://api.twitter.com/2/tweets/search/recent'
 
     def get_rating(self, player):
+        start = time.perf_counter()
         data = self.get_tweets(player)
         sentiment_pipeline = pipeline('sentiment-analysis')
         sentiments = [sentiment_pipeline(clean(tweet))[0] for tweet in data]
         rating = sum([sent['score'] * (-1 if sent['label'] == 'NEGATIVE' else 1) for sent in sentiments]) / len(sentiments)
+        finish = time.perf_counter()
+        print(f'Execution time: {finish-start}')
         return rating / 2 + 5
 
     def bearer_oauth(self, r):
@@ -35,7 +40,7 @@ class Tweet:
         return response.json()
 
     def get_tweets(self, player):
-        data = json.loads(json.dumps(tweet.connect_to_endpoint({'query': player + ' lang:en', 'tweet.fields': 'lang', 'max_results': 50})))
+        data = json.loads(json.dumps(tweet.connect_to_endpoint({'query': player + ' lang:en', 'tweet.fields': 'lang', 'max_results': 100})))
         return [i['text'] for i in data['data']]
 
 if __name__ == '__main__':
