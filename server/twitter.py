@@ -14,11 +14,12 @@ class Tweet:
         self.BEARER_TOKEN = os.environ.get('BEARER_TOKEN')
         self.url = 'https://api.twitter.com/2/tweets/search/recent'
 
-    def get_rating(self, tweet_list):
+    def get_rating(self, tweet_list, return_dict):
         sentiment_pipeline = pipeline('sentiment-analysis')
         sentiments = ([sentiment_pipeline(clean(tweet))[0] for tweet in tweet_list])
         rating = sum([sent['score'] * (-1 if sent['label'] == 'NEGATIVE' else 1) for sent in sentiments]) / len(sentiments)
-        return rating / 2 + 5
+        ans = rating / 2 + 5
+        return_dict[ans] = ans
         
     def bearer_oauth(self, r):
         r.headers["Authorization"] = f"Bearer {self.BEARER_TOKEN}"
@@ -55,13 +56,46 @@ class Tweet:
     def get_tweets(self, player):
         data = json.loads(json.dumps(tweet.connect_to_endpoint({'query': player + ' lang:en', 'tweet.fields': 'lang', 'max_results': 100})))
         raw_tweets = [i['text'] for i in data['data']]
-        tweet_list_2d = self.break_up_tweets(10, raw_tweets)
+        tweet_list_2d = self.break_up_tweets(25, raw_tweets)
         # return [i['text'] for i in data['data']]
         return tweet_list_2d
 
 if __name__ == '__main__':
     tweet = Tweet()
     sectioned_tweets = tweet.get_tweets('novak djokovic')
-    print(sectioned_tweets)
+    manager = mp.Manager()
+    results_dict = manager.dict()
+    processes = []
+    start = time.perf_counter()
     for inner_tweets in sectioned_tweets:
-        print(tweet.get_rating(inner_tweets))
+        p = mp.Process(target=tweet.get_rating, args=[inner_tweets, results_dict])
+        processes.append(p)
+        p.start()
+
+    for process in processes:
+        process.join()
+
+    finish = time.perf_counter()
+
+    print(results_dict)
+    print(f'Execution time: {finish-start}')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
