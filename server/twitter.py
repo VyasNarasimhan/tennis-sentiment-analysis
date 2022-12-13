@@ -21,8 +21,18 @@ class Tweet:
         sentiments = [sentiment_pipeline(clean(tweet))[0] for tweet in data]
         rating = sum([sent['score'] * (-1 if sent['label'] == 'NEGATIVE' else 1) for sent in sentiments]) / len(sentiments)
         finish = time.perf_counter()
-        print(f'Execution time: {finish-start}')
+        print(f'Execution time (synchronously): {finish-start}')
         return rating / 2 + 5
+    
+    def get_rating_multiprocessing(self, tweet_list):
+        start = time.perf_counter()
+        sentiment_pipeline = pipeline('sentiment-analysis')
+        sentiments = [sentiment_pipeline(clean(tweet))[0] for tweet in tweet_list])
+        rating = sum([sent['score'] * (-1 if sent['label'] == 'NEGATIVE' else 1) for sent in sentiments]) / len(sentiments)
+        finish = time.perf_counter()
+        print(f'Execution time (multiprocessing): {finish-start}')
+        return rating / 2 + 5
+        
 
     def bearer_oauth(self, r):
         r.headers["Authorization"] = f"Bearer {self.BEARER_TOKEN}"
