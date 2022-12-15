@@ -75,21 +75,4 @@ class Tweet:
 if __name__ == '__main__':
     tweet = Tweet()
     player = 'novak djokovic'
-    # sectioned_tweets = tweet.get_tweets(player)
-    # manager = mp.Manager()
-    # results_dict = manager.dict()
-    # processes = []
-    # start = time.perf_counter()
-    # for inner_tweets in sectioned_tweets:
-    #     p = mp.Process(target=tweet.get_tweet_sentiment, args=[inner_tweets, results_dict])
-    #     processes.append(p)
-    #     p.start()
-    #
-    # for process in processes:
-    #     process.join()
-    #
-    # finish = time.perf_counter()
     print(tweet.get_player_rating(player))
-
-    # print(f'Execution time: {finish-start}')
-    # print(f'The sentiment of the first 100 tweets relating to {player}: {sum(results_dict.values())/len(results_dict.values())}')
