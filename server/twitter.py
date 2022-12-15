@@ -14,7 +14,23 @@ class Tweet:
         self.BEARER_TOKEN = os.environ.get('BEARER_TOKEN')
         self.url = 'https://api.twitter.com/2/tweets/search/recent'
 
-    def get_rating(self, tweet_list, return_dict):
+    def get_player_rating(self, player):
+        sectioned_tweets = tweet.get_tweets(player)
+        manager = mp.Manager()
+        results_dict = manager.dict()
+        processes = []
+        for inner_tweets in sectioned_tweets:
+            p = mp.Process(target=tweet.get_tweet_sentiment, args=[inner_tweets, results_dict])
+            processes.append(p)
+            p.start()
+
+        for process in processes:
+            process.join()
+
+        return sum(results_dict.values())/len(results_dict.values())
+
+
+    def get_tweet_sentiment(self, tweet_list, return_dict):
         sentiment_pipeline = pipeline('sentiment-analysis')
         sentiments = ([sentiment_pipeline(clean(tweet))[0] for tweet in tweet_list])
         rating = sum([sent['score'] * (-1 if sent['label'] == 'NEGATIVE' else 1) for sent in sentiments]) / len(sentiments)
@@ -59,20 +75,21 @@ class Tweet:
 if __name__ == '__main__':
     tweet = Tweet()
     player = 'novak djokovic'
-    sectioned_tweets = tweet.get_tweets(player)
-    manager = mp.Manager()
-    results_dict = manager.dict()
-    processes = []
-    start = time.perf_counter()
-    for inner_tweets in sectioned_tweets:
-        p = mp.Process(target=tweet.get_rating, args=[inner_tweets, results_dict])
-        processes.append(p)
-        p.start()
+    # sectioned_tweets = tweet.get_tweets(player)
+    # manager = mp.Manager()
+    # results_dict = manager.dict()
+    # processes = []
+    # start = time.perf_counter()
+    # for inner_tweets in sectioned_tweets:
+    #     p = mp.Process(target=tweet.get_tweet_sentiment, args=[inner_tweets, results_dict])
+    #     processes.append(p)
+    #     p.start()
+    #
+    # for process in processes:
+    #     process.join()
+    #
+    # finish = time.perf_counter()
+    print(tweet.get_player_rating(player))
 
-    for process in processes:
-        process.join()
-
-    finish = time.perf_counter()
-
-    print(f'Execution time: {finish-start}')
-    print(f'The sentiment of the first 100 tweets relating to {player}: {sum(results_dict.values())/len(results_dict.values())}')
+    # print(f'Execution time: {finish-start}')
+    # print(f'The sentiment of the first 100 tweets relating to {player}: {sum(results_dict.values())/len(results_dict.values())}')
