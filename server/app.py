@@ -14,7 +14,7 @@ twitter = Tweet()
 def load_players():
     players = atp.get_players()
     for player in players:
-        player['rating'] = twitter.get_player_rating(player['name'])
+        player['rating'] = twitter.calculate_player_rating(player['name'])
     return json.dumps({"success": True, "result": players})
 
 @app.route('/get_player_rating', methods=["POST", "GET"])

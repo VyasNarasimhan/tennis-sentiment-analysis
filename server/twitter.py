@@ -14,7 +14,7 @@ class Tweet:
         self.BEARER_TOKEN = os.environ.get('BEARER_TOKEN')
         self.url = 'https://api.twitter.com/2/tweets/search/recent'
 
-    def get_player_rating(self, player):
+    def calculate_player_rating(self, player):
         sectioned_tweets = tweet.get_tweets(player)
         manager = mp.Manager()
         results_dict = manager.dict()
@@ -75,4 +75,4 @@ class Tweet:
 if __name__ == '__main__':
     tweet = Tweet()
     player = 'novak djokovic'
-    print(tweet.get_player_rating(player))
+    print(tweet.calculate_player_rating(player))
