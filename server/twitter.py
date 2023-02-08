@@ -15,12 +15,12 @@ class Tweet:
         self.url = 'https://api.twitter.com/2/tweets/search/recent'
 
     def calculate_player_rating(self, player):
-        sectioned_tweets = tweet.get_tweets(player)
+        sectioned_tweets = self.get_tweets(player)
         manager = mp.Manager()
         results_dict = manager.dict()
         processes = []
         for inner_tweets in sectioned_tweets:
-            p = mp.Process(target=tweet.get_tweet_sentiment, args=[inner_tweets, results_dict])
+            p = mp.Process(target=self.get_tweet_sentiment, args=[inner_tweets, results_dict])
             processes.append(p)
             p.start()
 
@@ -66,7 +66,7 @@ class Tweet:
         return tweet_list_2d
 
     def get_tweets(self, player):
-        data = json.loads(json.dumps(tweet.connect_to_endpoint({'query': player + ' lang:en', 'tweet.fields': 'lang', 'max_results': 100})))
+        data = json.loads(json.dumps(self.connect_to_endpoint({'query': player + ' lang:en', 'tweet.fields': 'lang', 'max_results': 100})))
         raw_tweets = [i['text'] for i in data['data']]
         tweet_list_2d = self.break_up_tweets(25, raw_tweets)
         # return [i['text'] for i in data['data']]
