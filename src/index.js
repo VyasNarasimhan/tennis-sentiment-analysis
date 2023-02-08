@@ -1,3 +1,10 @@
+document.addEventListener("keypress", function(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        get_player_rating();
+    }
+});
+
 function load_players() {
     $.ajax({
         url: 'http://localhost:5000/load_players',
@@ -22,15 +29,18 @@ function load_players() {
 }
 
 function get_player_rating() {
-    rating = $('#player_name').val()
-    $.ajax({
-        url: 'http://localhost:5000/get_player_rating?p=' + rating,
-        context: this,
-        method: "get",
-        dataType: "json"
-    }).done(function(data, status) {
-        print(data)
-    });
+    player_name = $('#search_box').val()
+    if (player_name !== '') {
+        $.ajax({
+            url: 'http://localhost:5000/get_player_rating?p=' + player_name,
+            context: this,
+            method: "get",
+            dataType: "json"
+        }).done(function(data, status) {
+            console.log(data);
+            $('#rating').text(data.result); //sets the text in the 'rating' h1 element to data.result
+        });
+    }
 }
 
 function get_rating_badge(rating) {
