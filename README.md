@@ -11,4 +11,6 @@ Tennis Sentiment Analysis is an application that uses a natural language process
     - [ ] Basketball
     - [ ] Cricket
 - [ ] Front-end
-    - [ ] Homepage
+    - [x] Homepage
+    - [ ] Rating
+    - [ ] Loading symbol
